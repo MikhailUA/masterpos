@@ -1,75 +1,60 @@
 <?php
+namespace App\Http\Middleware;
 
-namespace App\Http\Controllers\Auth;
 
-use Validator;
+use Closure;
+use Exception;
+use App\User;
 use Firebase\JWT\JWT;
-use Illuminate\Http\Request;
 use Firebase\JWT\ExpiredException;
-use Illuminate\Support\Facades\Hash;
-use Laravel\Lumen\Routing\Controller;
-use App\Models\Users;
 
-class AuthController extends Controller 
+class AuthMiddleware
 {
-
-    private $request;
-
-    protected function jwt(Users $user) {
-         $payload = [
-            'iss' => "lumen-jwt", // Issuer of the token
-            'sub' => $user->id, // Subject of the token
-            'iat' => time(), // Time when JWT was issued. 
-            'exp' => time() + 60*60 // Expiration time
-        ];
-      
-      // As you can see we are passing `JWT_SECRET` as the second parameter that will 
-        // be used to decode the token in the future.
+    public function handle($request, Closure $next, $guard = null)
+    {
+        $token = $request->header('Authorization'); // get token from request header
         
-        return JWT::encode($payload, env('JWT_SECRET'));
-    }
+        if(!$token) {
+          
+          // Unauthorized response if token not there
 
-
-    public function __construct(Request $request) {
-        $this->request = $request;
-    }
-
-    
-    public function userAuthenticate(Users $user) {
-        $this->validate($this->request, [
-            'login'     => 'required',
-            'password'  => 'required'
-        ]);
-
-        $login_type = filter_var($this->request->json('login'), FILTER_VALIDATE_EMAIL ) ? 'email' : 'username'; //check if the login variable is an email or a username
-
-        if($login_type == 'email'){
-            $user = Users::where('email', $this->request->json('login'))->first(); // Find the user by email
-        }else{
-            $user = Users::where('username', $this->request->json('login'))->first(); // Find the user by username
-        }
-
-        if (!$user) {
-            
             return response()->json([
-                'error' => 'User does not exist.'
-            ], 400);
-
+                'status' => 401,
+                'error' => 'Token required.'
+            ], 401);
         }
       
-        // Verify the password and generate the token
-
-        if (Hash::check($this->request->json('password'), $user->password)) {
+        try {
+          
+            $credentials = JWT::decode($token, env('JWT_SECRET'), ['HS256']);
+          
+        } catch(ExpiredException $e) {
           
             return response()->json([
-                'status'  => 200,
-                'message' => 'Login Successful',
-                'data'    => ['token' => $this->jwt($user) ] // return token
-            ], 200);
+                'error' => 'Provided token is expired.'
+            ], 400);
+          
+        } catch(Exception $e) {
+            return response()->json([
+                'error' => 'An error while decoding token.'
+            ], 400);
         }
+      
+        $user = User::find($credentials->sub);
+      
+        // Now let's put the user in the request class so that you can grab it from there
 
-        return response()->json([
-            'error' => 'Login details provided does not exit.'
-        ], 400);
-    } 
+        if(!empty($user)){
+          
+            $request->user = $user;
+          
+        }else{
+          
+            return response()->json([
+                'error' => 'Provided token is invalid.'
+            ], 400);
+        }
+        
+        return $next($request);
+    }
 }

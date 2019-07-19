@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use Validator;
 use Firebase\JWT\JWT;
@@ -8,34 +8,32 @@ use Illuminate\Http\Request;
 use Firebase\JWT\ExpiredException;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Lumen\Routing\Controller;
-use App\Models\Users;
+use App\User;
 
 class AuthController extends Controller 
 {
 
     private $request;
 
-    protected function jwt(Users $user) {
-         $payload = [
-            'iss' => "lumen-jwt", // Issuer of the token
-            'sub' => $user->id, // Subject of the token
-            'iat' => time(), // Time when JWT was issued. 
-            'exp' => time() + 60*60 // Expiration time
-        ];
-      
-      // As you can see we are passing `JWT_SECRET` as the second parameter that will 
-        // be used to decode the token in the future.
-        
-        return JWT::encode($payload, env('JWT_SECRET'));
-    }
-
-
     public function __construct(Request $request) {
         $this->request = $request;
+    }    
+
+    protected function jwt(User $user) {
+        $payload = [
+           'iss' => "masterpos-jwt", // Issuer of the token
+           'sub' => $user->id, // Subject of the token
+           'iat' => time(), // Time when JWT was issued. 
+           'exp' => time() + 60*60 // Expiration time
+       ];
+     
+     // As you can see we are passing `JWT_SECRET` as the second parameter that will 
+       // be used to decode the token in the future.
+       
+       return JWT::encode($payload, env('JWT_SECRET'));
     }
 
-    
-    public function userAuthenticate(Users $user) {
+    public function userAuthenticate(User $user) {
         $this->validate($this->request, [
             'login'     => 'required',
             'password'  => 'required'
@@ -44,9 +42,9 @@ class AuthController extends Controller
         $login_type = filter_var($this->request->json('login'), FILTER_VALIDATE_EMAIL ) ? 'email' : 'username'; //check if the login variable is an email or a username
 
         if($login_type == 'email'){
-            $user = Users::where('email', $this->request->json('login'))->first(); // Find the user by email
+            $user = User::where('email', $this->request->json('login'))->first(); // Find the user by email
         }else{
-            $user = Users::where('username', $this->request->json('login'))->first(); // Find the user by username
+            $user = User::where('username', $this->request->json('login'))->first(); // Find the user by username
         }
 
         if (!$user) {

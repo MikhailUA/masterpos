@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('firstname');
             $table->string('lastname');            
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 
             $table->foreign('user_id')->references('id')->on('users');
         });

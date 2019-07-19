@@ -22,6 +22,7 @@ $router->post(
     ]
 );
 
+/*
 $router->group(['middleware' => 'jwt.auth'], 
     function() use ($router) {
         $router->get('users', function() {
@@ -29,4 +30,20 @@ $router->group(['middleware' => 'jwt.auth'],
             return response()->json($users);
         });
     }
+);*/
+
+$router->get(
+    'customers', 
+    [
+        'middleware' => 'auth',
+        'uses' => 'CustomerController@index'
+    ]
+);
+
+$router->post(
+    'customer', 
+    [
+        'middleware' => 'auth',
+        'uses' => 'CustomerController@create'
+    ]
 );
