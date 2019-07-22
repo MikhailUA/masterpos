@@ -14,8 +14,7 @@ class CustomerController extends Controller
 
     public function index(Request $request) {
 
-        $customers = $request->user->customers;
-
+        $customers = $request->user()->customers;
         return response()->json($customers);
     }
 
@@ -31,7 +30,7 @@ class CustomerController extends Controller
 
         $customer->firstname = $request->firstname;
         $customer->lastname = $request->lastname;
-        $customer->user_id = $request->user->id;
+        $customer->user_id = $request->user()->id;
 
         $customer->save();
 
