@@ -14,3 +14,38 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->post(
+    'login', 
+    [
+       'uses' => 'AuthController@userAuthenticate'
+    ]
+);
+
+$router->get(
+    'customers', 
+    [
+        'middleware' => 'auth',
+        'uses' => 'CustomerController@index'
+    ]
+);
+
+$router->post(
+    'customer', 
+    [
+        'middleware' => 'auth',
+        'uses' => 'CustomerController@create'
+    ]
+);
+
+
+
+/*
+$router->group(['middleware' => 'jwt.auth'], 
+    function() use ($router) {
+        $router->get('users', function() {
+            $users = \App\Models\Users::all();
+            return response()->json($users);
+        });
+    }
+);*/
