@@ -16,21 +16,11 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post(
-    'auth/login', 
+    'login', 
     [
        'uses' => 'AuthController@userAuthenticate'
     ]
 );
-
-/*
-$router->group(['middleware' => 'jwt.auth'], 
-    function() use ($router) {
-        $router->get('users', function() {
-            $users = \App\Models\Users::all();
-            return response()->json($users);
-        });
-    }
-);*/
 
 $router->get(
     'customers', 
@@ -47,3 +37,15 @@ $router->post(
         'uses' => 'CustomerController@create'
     ]
 );
+
+
+
+/*
+$router->group(['middleware' => 'jwt.auth'], 
+    function() use ($router) {
+        $router->get('users', function() {
+            $users = \App\Models\Users::all();
+            return response()->json($users);
+        });
+    }
+);*/

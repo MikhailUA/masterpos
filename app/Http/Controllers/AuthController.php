@@ -38,14 +38,8 @@ class AuthController extends Controller
             'login'     => 'required',
             'password'  => 'required'
         ]);
-
-        $login_type = filter_var($this->request->json('login'), FILTER_VALIDATE_EMAIL ) ? 'email' : 'username'; //check if the login variable is an email or a username
-
-        if($login_type == 'email'){
-            $user = User::where('email', $this->request->json('login'))->first(); // Find the user by email
-        }else{
-            $user = User::where('username', $this->request->json('login'))->first(); // Find the user by username
-        }
+        
+        $user = User::where('email', $this->request->json('login'))->first(); 
 
         if (!$user) {
             
@@ -60,9 +54,8 @@ class AuthController extends Controller
         if (Hash::check($this->request->json('password'), $user->password)) {
           
             return response()->json([
-                'status'  => 200,
                 'message' => 'Login Successful',
-                'data'    => ['token' => $this->jwt($user) ] // return token
+                'token' => $this->jwt($user) // return token
             ], 200);
         }
 

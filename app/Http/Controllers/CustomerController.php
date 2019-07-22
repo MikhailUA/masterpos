@@ -36,6 +36,5 @@ class CustomerController extends Controller
         $customer->save();
 
         return response()->json($customer, 201);
-
     }
 }
