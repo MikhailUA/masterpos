@@ -20,9 +20,8 @@ Application Setup:
 6. test api
     - create tunnel to localhost
        - ./ngrok http 8000
-    - in swagger doc, lines 132 133:
+    - in swagger doc, line 13
         - host: from ngrok
-        - basePath: (remove this line)
         example:
         host: 112737ae.ngrok.io
     - pick one of user email from database, password 12345 for all users
