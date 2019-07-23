@@ -4,7 +4,7 @@ API Documentation:
 https://app.swaggerhub.com/apis/mp_api_doc/mp_test/1.0.0
 
 Application Setup:
-1. clone repository
+1. clone the repository
 2. run
     - composer install
     - composer dump-autoload
